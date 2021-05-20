@@ -9,6 +9,10 @@ const userSchema = new Schema(
       trim: true,
       maxlength: 25,
     },
+    points:{
+      type: Number,
+      default:0
+    },
     username: {
       type: String,
       required: true,
@@ -48,6 +52,10 @@ const userSchema = new Schema(
       default: "",
     },
     website: {
+      type: String,
+      default: "",
+    },
+    About: {
       type: String,
       default: "",
     },
