@@ -22,5 +22,7 @@ router
   router.patch("/question/:id/report", auth, questionCtrl.reportQuestion);
 
   router.get("/search", auth, questionCtrl.searchTags);
+  router.get("/tag/:id", auth, questionCtrl.getTagQuestions);
+  router.get("/tags", auth, questionCtrl.getTags);
 
 module.exports = router;
