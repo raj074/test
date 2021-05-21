@@ -21,4 +21,6 @@ router
   router.post("/question/:id/bounty", auth, questionCtrl.putBounty);
   router.patch("/question/:id/report", auth, questionCtrl.reportQuestion);
 
+  router.get("/search", auth, questionCtrl.searchTags);
+
 module.exports = router;

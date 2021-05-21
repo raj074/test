@@ -9,6 +9,10 @@ const questionSchema = new Schema(
       type: String,
       default: "open"
     },
+    tags: [{
+      type: mongoose.Types.ObjectId,
+      ref: "tag",
+    }],
     user: {
       type: mongoose.Types.ObjectId,
       ref: "user",

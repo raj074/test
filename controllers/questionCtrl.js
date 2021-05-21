@@ -1,13 +1,25 @@
 const Questions = require("../models/questionModel");
 const Users = require("../models/userModel");
 const Answers = require("../models/answerModel");
+const Tags = require("../models/tagModel");
 
 
 const questionCtrl = {
   createQuestion: async (req, res) => {
     try {
-      const { body, title } = req.body;
-
+      const { body, title, questionTags } = req.body;
+      let tags =[];
+      questionTags.forEach(x => {
+        tags.push(x.id)
+      })
+      tags = [...new Set(tags)];
+            
+      if (tags.length === 0) {
+        return res.status(400).json({
+          msg: "You must add at least one tag.",
+        });
+      }
+      
       if (title.length < 15) {
         return res.status(400).json({
           msg: "Question title length must be at least 15 characters.",
@@ -19,13 +31,16 @@ const questionCtrl = {
           msg: "Question title length must be less than 150 characters.",
         });
       }
-
-      const newQuestion = new Questions({
+      const tempQuestion = new Questions({
         title,
         body,
+        tags,
         user: req.user._id,
       });
-      await newQuestion.save();
+      
+      
+      await tempQuestion.save();
+      const newQuestion = await Questions.findById(tempQuestion._id).populate("tags");
       res.json({
         msg: "Question posted successfully.",
         newQuestion,
@@ -39,7 +54,8 @@ const questionCtrl = {
     try {
       const questions = await Questions.find({ status: "open" })
         .sort("-createdAt")
-        .populate("user", "username fullname points");
+        .populate("user", "username fullname points")
+        .populate("tags");
 
       res.json({
         msg: "Success",
@@ -198,24 +214,41 @@ const questionCtrl = {
         _id: req.params.id,
         reports: req.user._id,
       });
+      
+    
       if (question.length > 0) {
         return res
           .status(400)
           .json({ msg: "You have already reported this post" });
       }
-
-      const report = await Questions.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          $push: { reports: req.user._id },
-        },
-        {
-          new: true,
-        }
-      );
+      
+      
+        
+      
+        const report = await Questions.findOneAndUpdate(
+          { _id: req.params.id },
+          {
+            $push: { reports: req.user._id },
+          },
+          {
+            new: true,
+          }
+        );
+      
+      
 
       if (!report) {
         return res.status(400).json({ msg: "Question does not exist." });
+      }
+
+      
+      if(report.reports.length === 2){
+        await Questions.findOneAndUpdate(
+          { _id: req.params.id },
+          {
+            status: 'closed'
+          }
+        );
       }
 
       res.json({ msg: "Question reported successfully." });
@@ -228,7 +261,7 @@ const questionCtrl = {
     try {
       const questions = await Questions.find()
         .sort("-createdAt")
-        .populate("user", "username fullname points");
+        .populate("user", "username fullname points").populate("tags");
 
       res.json({
         msg: "Success",
@@ -243,7 +276,7 @@ const questionCtrl = {
     try {
       const questions = await Questions.find({ status:"bounty" })
         .sort("-createdAt")
-        .populate("user", "username fullname points");
+        .populate("user", "username fullname points").populate("tags");
         
       res.json({
         msg: "Success",
@@ -257,6 +290,7 @@ const questionCtrl = {
   putBounty: async (req, res) => {
     
     try {
+      const bounty = req.body.bounty;
       const question = await Questions.find({
         _id: req.params.id,
         user: req.user._id,
@@ -264,25 +298,42 @@ const questionCtrl = {
       });
 
       if (!question || question.length === 0) {
-        return res
-          .status(400)
-          .json({ msg: "Something went wrong ,Please try again." });
+        return res.status(400).json({ msg: "Something went wrong ,Please try again." });
       }
-
+      const user = await Users.findOne({_id: req.user._id});
+      
+       if(user.points < bounty){
+       
+        return res.status(400).json({ msg: "You dont have enough points." });
+       }
 
       const newQue = await Questions.findOneAndUpdate(
         {
           _id: req.params.id,
         },
-        { "bounty.value":req.body.bounty, "bounty.time": Date.now(), status: "bounty" },
+        { "bounty.value":bounty, "bounty.time": Date.now(), status: "bounty" },
         {new: true}
       )
       .populate("user", "username fullname avatar points")
       .populate({ path: "answers", populate: { path: "user" } });
         
-      await Users.findOneAndUpdate({_id:req.user._id}, { $inc: { points: -req.body.bounty } })
+      await Users.findOneAndUpdate({_id:req.user._id}, { $inc: { points: -bounty } })
 
-      res.json({ msg: `${req.body.bounty} points deducted from your account.`, question: newQue });
+      res.json({ msg: `${bounty} points deducted from your account.`, question: newQue });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  searchTags: async (req, res) => {
+    try {
+      
+      const tags = await Tags.find({
+        tagName: { $regex: req.query.tag },
+      })
+        .limit(9);
+        
+      res.json({ tags });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
