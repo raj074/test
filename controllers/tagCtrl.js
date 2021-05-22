@@ -22,9 +22,6 @@ const tagCtrl = {
     
           
     
-          if (questions.length === 0) {
-            return res.status(400).json({ msg: "There are no Questions in this tag yet" });
-          }
     
           res.json({
             msg: "Success",

@@ -93,15 +93,23 @@ const questionCtrl = {
 
   upVoteQuestion: async (req, res) => {
     try {
+      const temp = await Questions.findOne({
+        _id: req.params.id,
+      });
+      
+      if(String(temp.user) === String(req.user._id) ){
+        return res.status(400).json({ msg: "You can not up vote your own question" });
+      }
+
+
       const question = await Questions.find({
         _id: req.params.id,
         upvotes: req.user._id,
       });
       if (question.length > 0) {
-        return res
-          .status(400)
-          .json({ msg: "You have already up voted this question" });
+        return res.status(400).json({ msg: "You have already up voted this question" });
       }
+      
 
       const upvote = await Questions.findOneAndUpdate(
         { _id: req.params.id },
