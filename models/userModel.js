@@ -13,6 +13,10 @@ const userSchema = new Schema(
       type: Number,
       default:20
     },
+    followedTags:[{
+      type: mongoose.Types.ObjectId,
+      ref:'tag'
+    }],
     username: {
       type: String,
       required: true,
@@ -55,7 +59,7 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
-    About: {
+    about: {
       type: String,
       default: "",
     },

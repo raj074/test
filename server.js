@@ -18,6 +18,8 @@ app.use(cookieParser());
 //!Routers
 app.use('/api', require('./routes/authRouter'));
 app.use('/api', require('./routes/questionRouter'));
+app.use('/api', require('./routes/tagRouter'));
+app.use('/api', require('./routes/userRouter'));
 
 
 //!Database connection to mongoose

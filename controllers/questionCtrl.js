@@ -54,9 +54,9 @@ const questionCtrl = {
     }
   },
 
-  getQuestions: async (req, res) => {
+  getActiveQuestions: async (req, res) => {
     try {
-      const questions = await Questions.find({ status: "open" })
+      const questions = await Questions.find({ tags: {$in: req.user.followedTags } , status: "open" })
         .sort("-createdAt")
         .populate("user", "username fullname points")
         .populate("tags");
@@ -329,63 +329,9 @@ const questionCtrl = {
     }
   },
 
-  searchTags: async (req, res) => {
-    try {
-      
-      const tags = await Tags.find({
-        tagName: { $regex: req.query.tag },
-      })
-        .limit(9);
-        
-      res.json({ tags });
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
+  
 
-  getTagQuestions: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const tag = await Tags.findOne({_id:id});
-      
-      if(!tag || tag.length === 0){
-        return res.status(400).json({ msg: "Tag does not exist." });
-      }
-
-      const questions = await Questions.find({ tags: id })
-      .sort("-createdAt")
-      .limit(10)
-      .populate("user", "username fullname points")
-      .populate("tags");
-
-      
-
-      if (questions.length === 0) {
-        return res.status(400).json({ msg: "There are no Questions in this tag yet" });
-      }
-
-      res.json({
-        msg: "Success",
-        questions,
-        tag
-      });
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
-
-  getTags: async (req, res) => {
-    try {
-      const tags = await Tags.find();
-
-      res.json({
-        msg: "Success",
-        tags,
-      });
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
+  
 };
 
 module.exports = questionCtrl;

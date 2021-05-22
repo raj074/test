@@ -5,7 +5,7 @@ const auth = require("../middleware/auth");
 router
   .route("/questions")
   .post(auth, questionCtrl.createQuestion)
-  .get(auth, questionCtrl.getQuestions);
+  .get(auth, questionCtrl.getActiveQuestions);
 
   router.get("/questions/bountied", auth, questionCtrl.getBountiedQuestions);
   router.get("/questions/all", auth, questionCtrl.getAllQuestions);
@@ -21,8 +21,6 @@ router
   router.post("/question/:id/bounty", auth, questionCtrl.putBounty);
   router.patch("/question/:id/report", auth, questionCtrl.reportQuestion);
 
-  router.get("/search", auth, questionCtrl.searchTags);
-  router.get("/tag/:id", auth, questionCtrl.getTagQuestions);
-  router.get("/tags", auth, questionCtrl.getTags);
+
 
 module.exports = router;

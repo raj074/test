@@ -111,7 +111,7 @@ const authCtrl = {
       
       const { email, password } = req.body;
 
-      const user = await Users.findOne({ email, role: "user" });
+      const user = await Users.findOne({ email, role: "user" }).populate("followedTags");
 
       if (!user) {
         return res.status(400).json({ msg: "Email or Password is incorrect." });
@@ -207,7 +207,7 @@ const authCtrl = {
           }
 
           const user = await Users.findById(result.id)
-            .select("-password");
+            .select("-password").populate("followedTags");
 
           if (!user) {
             res.status(400).json({ msg: "User does not exist." });
