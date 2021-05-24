@@ -9,10 +9,10 @@ const tagSchema = new Schema(
     details: {
       type: String
     },
-    questions: {
+    questions: [{
       type: mongoose.Types.ObjectId,
       ref: "question",
-    },
+    }],
     followers: [
       {
         type: mongoose.Types.ObjectId,

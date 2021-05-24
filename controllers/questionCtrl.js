@@ -287,7 +287,7 @@ const questionCtrl = {
   getBountiedQuestions: async (req, res) => {
     try {
       const questions = await Questions.find({ status:"bounty" })
-        .sort("-createdAt")
+        .sort("-bounty.time")
         .populate("user", "username fullname points").populate("tags");
         
       res.json({

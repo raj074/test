@@ -20,6 +20,7 @@ app.use('/api', require('./routes/authRouter'));
 app.use('/api', require('./routes/questionRouter'));
 app.use('/api', require('./routes/tagRouter'));
 app.use('/api', require('./routes/userRouter'));
+app.use('/api', require('./routes/adminRouter'));
 
 
 //!Database connection to mongoose
